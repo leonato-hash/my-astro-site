@@ -1,0 +1,28 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Card from '../components/Card.astro';
+---
+<Layout title="나토님의 현대적 웹사이트">
+  <header class="mb-12">
+    <h1 class="text-5xl font-extrabold tracking-tight mb-4 leading-tight">
+      8년 만에 돌아온 <br/><span class="text-indigo-600 underline decoration-indigo-200">퍼블리싱의 신세계</span>
+    </h1>
+    <p class="text-lg text-slate-600 max-w-2xl">
+      Astro는 필요한 HTML만 전송하고, Tailwind는 CSS 파일 없이 클래스만으로 디자인을 완성합니다. 
+      아래 카드들은 재사용 가능한 컴포넌트입니다.
+    </p>
+  </header>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <Card 
+      category="Experience" 
+      title="8년 전의 퍼블리싱" 
+      date="HTML, CSS, jQuery" 
+    />
+    <Card 
+      category="Modern Tech" 
+      title="2026년의 퍼블리싱" 
+      date="Astro, Tailwind, React" 
+    />
+  </div>
+</Layout>

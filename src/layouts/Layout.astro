@@ -1,0 +1,28 @@
+---
+const { title } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+  </head>
+  <body class="bg-slate-50 text-slate-900 min-h-screen">
+    <nav class="bg-white border-b border-slate-200 px-6 py-4">
+      <div class="max-w-4xl mx-auto flex justify-between items-center">
+        <span class="text-xl font-black text-indigo-600">NATO PORTFOLIO</span>
+        <ul class="flex gap-6 text-sm font-medium">
+          <li><a href="#" class="hover:text-indigo-600 transition">소개</a></li>
+          <li><a href="#" class="hover:text-indigo-600 transition">작업물</a></li>
+        </ul>
+      </div>
+    </nav>
+    <main class="max-w-4xl mx-auto py-12 px-6">
+      <slot />
+    </main>
+    <footer class="text-center py-10 text-slate-400 text-sm">
+      &copy; 2026 나토님. Astro + Tailwind CSS 샘플
+    </footer>
+  </body>
+</html>

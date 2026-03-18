@@ -1,0 +1,159 @@
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from "recharts";
+
+// X축: 천만 돌파 이후 주차 (0주 = 천만 돌파 시점)
+// Y축: 누적 관객 수 (만 명)
+// 확인된 마일스톤: ★ 표시
+// 나머지는 흥행 패턴 기반 추정치
+
+const weeks = ["0주\n(천만)", "1주", "2주", "3주", "4주", "5주", "6주", "7주"];
+
+const rawData = [
+  // 명량: 12일차 천만, 18일차+6일≈1주 1398만 확인, 최종 1761만
+  { key: "명량", color: "#ef4444", values: [1000, 1450, 1610, 1700, 1745, 1758, 1761, null], final: 1761, year: 2014 },
+
+  // 극한직업: 15일차 천만, 22일차+7일=1주 1342만 확인, 32일차≈2.4주 1503만 확인, 최종 1626만
+  { key: "극한직업", color: "#f97316", values: [1000, 1342, 1500, 1575, 1610, 1626, null, null], final: 1626, year: 2019 },
+
+  // 신과함께: 16일차 천만, 최종 1441만 (중간 추정)
+  { key: "신과함께", color: "#eab308", values: [1000, 1140, 1260, 1370, 1430, 1441, null, null], final: 1441, year: 2017 },
+
+  // 국제시장: 28일차 천만, 롱런형, 최종 1426만
+  { key: "국제시장", color: "#22c55e", values: [1000, 1075, 1160, 1260, 1340, 1395, 1420, 1426], final: 1426, year: 2014 },
+
+  // 어벤져스 엔드게임: 11일차 천만(역대최단), 최종 1393만
+  { key: "어벤져스", color: "#14b8a6", values: [1000, 1220, 1340, 1385, 1393, null, null, null], final: 1393, year: 2019 },
+
+  // 겨울왕국2: 최종 1374만 (추정)
+  { key: "겨울왕국2", color: "#3b82f6", values: [1000, 1100, 1210, 1310, 1360, 1374, null, null], final: 1374, year: 2019 },
+
+  // 아바타: 최종 1362만 (추정, 롱런형)
+  { key: "아바타", color: "#8b5cf6", values: [1000, 1070, 1150, 1240, 1310, 1350, 1362, null], final: 1362, year: 2009 },
+
+  // 베테랑: 25일차 천만, 최종 1341만
+  { key: "베테랑", color: "#ec4899", values: [1000, 1090, 1190, 1290, 1341, null, null, null], final: 1341, year: 2015 },
+
+  // 왕과 사는 남자: 30일차 천만(3/6), 3/15 1300만 확인, 3/18 현재 1347만 (상영중🔴)
+  { key: "왕사남🔴", color: "#f43f5e", values: [1000, 1347, null, null, null, null, null, null], final: null, year: 2026, live: true },
+
+  // 서울의봄: 33일차 천만, +20일≈3주 1270만 확인, +34일≈5주 1300만 확인, 최종 1312만
+  { key: "서울의봄", color: "#64748b", values: [1000, 1110, 1185, 1270, 1295, 1305, 1312, null], final: 1312, year: 2023 },
+];
+
+// recharts용 데이터 변환
+const chartData = weeks.map((week, i) => {
+  const entry = { week };
+  rawData.forEach(movie => {
+    if (movie.values[i] !== null && movie.values[i] !== undefined) {
+      entry[movie.key] = movie.values[i];
+    }
+  });
+  return entry;
+});
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <div style={{
+      background: "#1e293b", border: "1px solid #334155",
+      borderRadius: 10, padding: "12px 16px", minWidth: 160
+    }}>
+      <p style={{ color: "#94a3b8", fontSize: 12, margin: "0 0 8px" }}>
+        {label.replace("\n", " ")}
+      </p>
+      {payload
+        .sort((a, b) => b.value - a.value)
+        .map(p => (
+          <div key={p.dataKey} style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 3 }}>
+            <span style={{ color: p.color, fontSize: 12 }}>{p.dataKey}</span>
+            <span style={{ color: "#f1f5f9", fontSize: 12, fontWeight: "bold" }}>
+              {p.value.toLocaleString()}만
+            </span>
+          </div>
+        ))}
+    </div>
+  );
+};
+
+export default function App() {
+  return (
+    <div style={{
+      background: "#0f172a", minHeight: "100vh",
+      display: "flex", flexDirection: "column",
+      alignItems: "center", padding: "32px 16px",
+      fontFamily: "'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif"
+    }}>
+      <h2 style={{ color: "#f1f5f9", fontSize: 20, fontWeight: "bold", marginBottom: 4, textAlign: "center" }}>
+        🎬 역대 흥행 TOP 10 — 천만 돌파 이후 주차별 누적 관객 수
+      </h2>
+      <p style={{ color: "#64748b", fontSize: 12, marginBottom: 8 }}>
+        기준: KOBIS 영화관입장권통합전산망 | 0주 = 천만 돌파 시점
+      </p>
+      <p style={{ color: "#f43f5e", fontSize: 12, marginBottom: 28 }}>
+        🔴 왕과 사는 남자는 현재 상영 중 (2026.03.18 기준 1,347만)
+      </p>
+
+      <div style={{ width: "100%", maxWidth: 860 }}>
+        <ResponsiveContainer width="100%" height={440}>
+          <LineChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
+            <CartesianGrid stroke="#1e293b" strokeDasharray="3 3" />
+            <XAxis
+              dataKey="week"
+              tick={{ fill: "#94a3b8", fontSize: 11 }}
+            />
+            <YAxis
+              domain={[950, 1850]}
+              tickFormatter={v => `${v}만`}
+              tick={{ fill: "#94a3b8", fontSize: 11 }}
+              ticks={[1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800]}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend
+              wrapperStyle={{ color: "#94a3b8", fontSize: 12, paddingTop: 16 }}
+              iconType="circle"
+              iconSize={8}
+            />
+
+            {rawData.map(movie => (
+              <Line
+                key={movie.key}
+                type="monotone"
+                dataKey={movie.key}
+                stroke={movie.color}
+                strokeWidth={movie.live ? 2.5 : 2}
+                strokeDasharray={movie.live ? "6 3" : "0"}
+                dot={{ r: 4, fill: movie.color, strokeWidth: 0 }}
+                connectNulls={false}
+                activeDot={{ r: 6 }}
+              />
+            ))}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* 영화별 최종 기록 요약 */}
+      <div style={{
+        display: "flex", flexWrap: "wrap", gap: 8, marginTop: 24,
+        maxWidth: 860, justifyContent: "center"
+      }}>
+        {rawData.sort((a, b) => (b.final || 9999) - (a.final || 9999)).map(m => (
+          <div key={m.key} style={{
+            background: "#1e293b", borderRadius: 8, padding: "6px 12px",
+            border: `1px solid ${m.color}44`, display: "flex", alignItems: "center", gap: 8
+          }}>
+            <div style={{ width: 8, height: 8, borderRadius: "50%", background: m.color }} />
+            <span style={{ color: "#cbd5e1", fontSize: 12 }}>{m.key.replace("🔴", "")}</span>
+            <span style={{ color: m.color, fontSize: 12, fontWeight: "bold" }}>
+              {m.final ? `${m.final.toLocaleString()}만` : "상영중🔴"}
+            </span>
+            <span style={{ color: "#475569", fontSize: 11 }}>{m.year}</span>
+          </div>
+        ))}
+      </div>
+
+      <p style={{ color: "#475569", fontSize: 11, marginTop: 20, textAlign: "center", lineHeight: 1.6 }}>
+        ※ 확인된 마일스톤(명량 1주=1398만, 극한직업 1주=1342만·2.4주=1503만, 서울의봄 3주=1270만·5주=1300만, 왕사남 1주=1300만)<br/>
+        이외 주차는 흥행 패턴 기반 추정치입니다.
+      </p>
+    </div>
+  );
+}
